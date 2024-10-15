@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="StandartButtonStyle">StandartButtonStyle
+        <item name="android:background">@drawable/standart_button</item>
+
+        <item name="android:textSize">5mm</item>
+    </style>
+</resources>

@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     double secop; //второй элемент выражения
 
-    Character operation; //символ операции: (+, -, *, /)
+    Character operation = '\0'; //символ операции: (+, -, *, /)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,28 +71,38 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.Button0).setOnClickListener((view)->onNumberClick("0"));
         findViewById(R.id.Button00).setOnClickListener((view)->onNumberClick("00"));
         findViewById(R.id.ButtonPlus).setOnClickListener((view)->onOperationClick('+'));
-        findViewById(R.id.ButtonMinus).setOnClickListener((view)->onOperationClick('—'));
-        findViewById(R.id.ButtonMultiply).setOnClickListener((view)->onOperationClick('*'));
-        findViewById(R.id.ButtonDivide).setOnClickListener((view)->onOperationClick('/'));
-        findViewById(R.id.ButtonPoint).setOnClickListener((view)->onOperationClick('.'));
+        findViewById(R.id.ButtonMinus).setOnClickListener((view)->onOperationClick('-'));
+        findViewById(R.id.ButtonMultiply).setOnClickListener((view)->onOperationClick('×'));
+        findViewById(R.id.ButtonDivide).setOnClickListener((view)->onOperationClick('÷'));
+        findViewById(R.id.ButtonPoint).setOnClickListener((view)->ButtonPointClick());
         findViewById(R.id.ButtonPercents).setOnClickListener((view)->ButtonPercentsClick());
-
-        findViewById(R.id.ButtonBackSpace).setOnClickListener((view)->ButtonBackSpaceClick());
+        findViewById(R.id.ButtonResult).setOnClickListener((view)->onResultClick());
+        findViewById(R.id.ButtonReset).setOnClickListener((view)-> ButtonResetClick());
     }
 
-    public void ButtonResetClick(View view) {
+    public void ButtonPointClick() {
+        if (expression.charAt(expression.length() - 1) != operation &
+        !expression.isEmpty() & expression.charAt(expression.length() - 1) != ',') {
+            TextResult.append(".");
+        }
+    }
+
+    public void ButtonResetClick() {
         firstop = 0;
         secop = 0;
-        operation = '\u0000';
+        operation = '\0';
         TextResult.setText("");
+    }
+
+    public void onResultClick() {
+        secop = takeSecondOperand();
+        TextResult.setText(String.valueOf(Result(firstop,operation,secop)));
+        operation = '\0';
     }
 
     @SuppressLint("SetTextI18n")
     public void ButtonPercentsClick() {
-        if (expression.charAt(expression.length()-1) == operation) { //если последний символ - это символ операции,
-            return;                                                  //то отмена печати
-        }
-        else if (operation != '\u0000') { //если есть символ операции, то выделять второй операнд и вместо него ставить secop/100
+        if (operation != '\0') { //если есть символ операции, то выделять второй операнд и вместо него ставить secop/100
             secop = takeSecondOperand()/100; //вычисление процента
             int operationIndex = expression.indexOf(operation); //индекс символа операции
             String finalExpression = expression.substring(0,operationIndex+1)+ secop; //замена второго аргумента
@@ -104,20 +114,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    public void ButtonBackSpaceClick() {
-        //инициализация полученной строки
-        String expressionMinus1;
-        if (!expression.isEmpty()) {
-            if (expression.charAt(expression.length()-1) == operation) {
-                operation = '\u0000';
-            }
-            //строка после стирания символа
-            expressionMinus1 = expression.substring(0,expression.length()-1);
-            TextResult.setText(expressionMinus1);
-        }
-    }
-
     public void onNumberClick(String number) {
         TextResult.append(number);
     }
@@ -125,38 +121,36 @@ public class MainActivity extends AppCompatActivity {
     public void onOperationClick(char operation) {
         if (!expression.isEmpty() & //если выражение не пустое
                 isDigit(expression.charAt(expression.length() - 1))) { //если последний символ - цифра
-            if (this.operation == null) {
+            if (this.operation == '\0') {
                 firstop = Double.parseDouble(expression);
                 this.operation = operation;
-                TextResult.append("+");
+                TextResult.append(String.valueOf(operation));
             }
             else {
-                secop = Double.parseDouble(expression.substring(expression.indexOf(operation)+1));
-                double result = Result(firstop, this.operation, secop);
-                firstop = result;
-                if (result % 1 == 0) {
-                    TextResult.setText((int)result);
+                this.operation = operation;
+                secop = takeSecondOperand();
+                firstop = Result(firstop, this.operation, secop);
+                if (firstop % 1 == 0) {
+                    TextResult.setText((int)firstop+"");
                 }
                 else {
-                    TextResult.setText(String.valueOf(result));
+                    TextResult.setText(String.valueOf(firstop));
                 }
-                TextResult.setText(String.valueOf(result));
                 this.operation = operation;
-                TextResult.append("+");
+                TextResult.append(String.valueOf(operation));
             }
         }
-        //else if (operation == '-')
     }
 
     public double Result(double firstoperand, char operation, double secoperand) {
         switch (operation) {
             case '+':
                 return firstoperand+secoperand;
-            case '—':
+            case '-':
                 return firstoperand-secoperand;
-            case '*':
+            case '×':
                 return firstoperand*secoperand;
-            case '/':
+            case '÷':
                 return firstoperand/secoperand;
         }
         return 0;

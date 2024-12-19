@@ -7,7 +7,6 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
